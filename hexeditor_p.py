@@ -2,6 +2,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, pyqtSignal
+from hexdata import HexData
 
 import os
 
@@ -15,7 +16,8 @@ class HexEditor_p(QtWidgets.QWidget):
 
         self._cursorTimer = QtCore.QTimer()
 
-        self.data = bytearray(os.urandom(1024*20))
+        self.data = HexData()
+        self.data.setData(bytearray(os.urandom(1024*20)))
 
         self.setFont(QtGui.QFont("Courier", 8))
         self.setFocusPolicy(Qt.StrongFocus)
@@ -63,7 +65,7 @@ class HexEditor_p(QtWidgets.QWidget):
 
     def setData(self, data):
         if isinstance(data, (bytearray, bytes, QtCore.QByteArray)):
-            self.data = data
+            self.data.setData(data)
             self.setCursorVariables(0)
             self.update()
         else:
