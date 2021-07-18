@@ -45,7 +45,11 @@ class HexEditor_p(QtWidgets.QWidget):
         self._cursorYPositionInCanvas = 0
         self._cursorBlink = False
 
+        #For the selection we have the place we clicked and the start and end of the selection
+        #We can drag up or down related to the clicked position, so we need to save the
+        #clicked position.
         self.currentSelection = {
+            'click': 0,
             'start': 0,
             'end': 0
         }
@@ -70,11 +74,30 @@ class HexEditor_p(QtWidgets.QWidget):
         self.update(self._cursorXPositionInCanvas, self._cursorYPositionInCanvas, self._charWidth, self._charHeight)
 
     def mousePressEvent(self, e):
+        '''The mouse click event starts a new selection and update the cursor variables'''
         self.update()
         self.setCursorVariables(self.mapPointToHexIndex(e.pos()))
+        self.currentSelection['click'] = self._cursorIndexInData
         self.currentSelection['start'] = self._cursorIndexInData
         self.currentSelection['end'] = self._cursorIndexInData
-        #print(self.currentSelection)
+    
+    def mouseMoveEvent(self, e):
+        '''This method is called when we drag the mouse over the widget canvas.
+        This way the user can select a block of bytes.
+        So we use the mouse location the calculate the start and end points of the selection.'''
+
+        self.update()
+        self.setCursorVariables(self.mapPointToHexIndex(e.pos()))
+        cursorPos = self._cursorIndexInData
+
+        if cursorPos >= self.currentSelection['click']:
+            self.currentSelection['start'] = self.currentSelection['click']
+            self.currentSelection['end'] = cursorPos
+        else:
+            self.currentSelection['start'] = cursorPos
+            self.currentSelection['end'] = self.currentSelection['click']
+
+        
 
     def setCursorVariables(self, hexIndex):
         self._cursorIndexInData = hexIndex//2
@@ -86,8 +109,8 @@ class HexEditor_p(QtWidgets.QWidget):
         x = self._cursorHexPosition % (2*self.BYTES_PER_LINE)
         self._cursorXPositionInCanvas = (((x//2)*3) + (x%2)) * self._charWidth + self.hex_xpos + self._charWidth
 
-        print(f"_cursorIndexInData: {self._cursorIndexInData} - self._cursorHexPosition: {self._cursorHexPosition} - \
-        self._cursorXPositionInCanvas: {self._cursorXPositionInCanvas} - self._cursorYPositionInCanvas: {self._cursorYPositionInCanvas}")
+        #print(f"_cursorIndexInData: {self._cursorIndexInData} - self._cursorHexPosition: {self._cursorHexPosition} - \
+        #self._cursorXPositionInCanvas: {self._cursorXPositionInCanvas} - self._cursorYPositionInCanvas: {self._cursorYPositionInCanvas}")
 
 
     def mapPointToHexIndex(self,point):
@@ -105,6 +128,16 @@ class HexEditor_p(QtWidgets.QWidget):
         
         return x+y
 
+    def resetCurrentSelection(self, pos):
+        '''Reset the current selection, point all the variabels to a single position'''
+        if pos<0:
+            pos=0
+
+        self.currentSelection['click'] = pos
+        self.currentSelection['start'] = pos
+        self.currentSelection['end'] = pos
+
+
     # def mapPointToDataIndex(self,point):
     #     if point.x() > self.hex_xpos and point.x() < self.hex_xpos + self.hex_width - self._charWidth:
     #         x = ((point.x() - self.hex_xpos) // self._charWidth) // 3
@@ -120,6 +153,12 @@ class HexEditor_p(QtWidgets.QWidget):
 
         if (key >= "0" and key <= "9") or (key >= "a" and key <= "f"):
             if len(self.data) > 0:
+                #If there is a block selection active, we need to start the changes
+                #from the beginning of the block.
+                if self.currentSelection['start'] != self.currentSelection['end']:
+                    self.setCursorVariables(self.currentSelection['start']*2)
+                    self.resetCurrentSelection(self.currentSelection['start'])
+
                 byte = self.data[self._cursorIndexInData]
                 #print(f"{byte:02x}")
 
@@ -196,8 +235,14 @@ class HexEditor_p(QtWidgets.QWidget):
                 hex = self.data[i]
 
                 #print(type(hex))
+
+                #Painting the current selection with a different color
+                if i>=self.currentSelection['start'] and i<=self.currentSelection['end']:
+                    painter.setBackground(QtGui.QBrush(QtGui.QColor(0x00, 0xff, 0x00, 0x30)))
+                    painter.setBackgroundMode(Qt.OpaqueMode)
+                else:
+                    painter.setBackgroundMode(Qt.TransparentMode)
                 
-                painter.setBackgroundMode(Qt.TransparentMode)
                 painter.drawText(xpos, ypos, ' ')
                 xpos += self._charWidth
 
