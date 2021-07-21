@@ -3,6 +3,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, pyqtSignal
 from hexdata import HexData
+from selections import Selections
 
 import os
 
@@ -55,6 +56,8 @@ class HexEditor_p(QtWidgets.QWidget):
             'start': 0,
             'end': 0
         }
+
+        self.selections = Selections()
 
         self.setMinimumHeight((len(self.data)//16)*self._charHeight+self._charHeight)
         self.setCursorVariables(0) #TODO
@@ -158,8 +161,11 @@ class HexEditor_p(QtWidgets.QWidget):
                 #If there is a block selection active, we need to start the changes
                 #from the beginning of the block.
                 if self.currentSelection['start'] != self.currentSelection['end']:
+                    self.selections.add(self.currentSelection['start'], self.currentSelection['end'])
                     self.setCursorVariables(self.currentSelection['start']*2)
                     self.resetCurrentSelection(self.currentSelection['start'])
+                
+                    
 
                 byte = self.data[self._cursorIndexInData]
                 #print(f"{byte:02x}")
@@ -239,8 +245,11 @@ class HexEditor_p(QtWidgets.QWidget):
                 #print(type(hex))
 
                 #Painting the current selection with a different color
-                if i>=self.currentSelection['start'] and i<=self.currentSelection['end']:
-                    painter.setBackground(QtGui.QBrush(QtGui.QColor(0x00, 0xff, 0x00, 0x30)))
+                if i>=self.currentSelection['start'] and i<=self.currentSelection['end'] and self.currentSelection['start'] != self.currentSelection['end']:
+                        painter.setBackground(QtGui.QBrush(QtGui.QColor(0x00, 0xff, 0x00, 0x30)))
+                        painter.setBackgroundMode(Qt.OpaqueMode)
+                elif self.selections.isSelected(i):
+                    painter.setBackground(QtGui.QBrush(QtGui.QColor(0xff, 0x00, 0x00, 0x30)))
                     painter.setBackgroundMode(Qt.OpaqueMode)
                 else:
                     painter.setBackgroundMode(Qt.TransparentMode)
@@ -261,6 +270,7 @@ class HexEditor_p(QtWidgets.QWidget):
             lineNum += self.BYTES_PER_LINE
 
     def paintLatin1Area(self, painter, e):
+        painter.setBackgroundMode(Qt.TransparentMode)
         painter.fillRect(QtCore.QRect(self.ascii_xpos, e.rect().top(), self.ascii_width, self.height()), QtGui.QColor(0xff, 0xfb, 0xd0, 0xff))
 
         ypos = ((self.firstIndexToPaint) / self.BYTES_PER_LINE) * self._charHeight + self._charHeight
