@@ -161,11 +161,11 @@ class HexEditor_p(QtWidgets.QWidget):
                 #If there is a block selection active, we need to start the changes
                 #from the beginning of the block.
                 if self.currentSelection['start'] != self.currentSelection['end']:
-                    selectionSize = self.currentSelection['end']-self.currentSelection['start']
+                    selectionSize = self.currentSelection['end']-self.currentSelection['start']+1
 
                     self.selections.add(self.currentSelection['start'], self.currentSelection['end'])
                     self.setCursorVariables(self.currentSelection['start']*2)
-                    self.data.replaceWithValue(self.currentSelection['start'], selectionSize+1, 0x0)
+                    self.data.replaceWithValue(self.currentSelection['start'], selectionSize, 0x0)
                     self.resetCurrentSelection(self.currentSelection['start'])
 
                 byte = self.data[self._cursorIndexInData]
@@ -178,7 +178,15 @@ class HexEditor_p(QtWidgets.QWidget):
 
                 #print(f"{byte:02x}")
                 self.replaceByte(self._cursorIndexInData, byte)
-                self.setCursorVariables(self._cursorHexPosition+1)                
+                self.setCursorVariables(self._cursorHexPosition+1)      
+
+        if e.matches(QtGui.QKeySequence.Delete):
+            self.selections.add(self.currentSelection['start'], self.currentSelection['end'])
+            if self.currentSelection['start'] != self.currentSelection['end']:                
+                selectionSize = self.currentSelection['end']-self.currentSelection['start']+1
+                self.data.remove(self.currentSelection['start'], selectionSize)
+            else:
+                self.data.remove(self.currentSelection['start'], 1)
         
         self.update()
 

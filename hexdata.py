@@ -18,6 +18,10 @@ class HexData:
     def replaceWithValue(self, pos, size, value):
         values = bytearray([value&0xff]*size)
         self.data.replace(pos, size, QtCore.QByteArray(values))
+    
+    def remove(self, pos, size):
+        values = bytearray(size)
+        self.data.replace(pos, size, QtCore.QByteArray(values))
 
     def setData(self, data):
         if isinstance(data, (bytearray, bytes)):
