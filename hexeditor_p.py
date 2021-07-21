@@ -233,6 +233,19 @@ class HexEditor_p(QtWidgets.QWidget):
 
         while lineNum<self.lastIndexToPaint:
             address = lineNum
+
+            #print(f"line: {lineNum}, cursor: {self._cursorIndexInData}")
+
+            if (
+                (self.currentSelection['start']>=address and self.currentSelection['start']<address+self.BYTES_PER_LINE) or
+                (self.currentSelection['end']>=address and self.currentSelection['end']<address+self.BYTES_PER_LINE) or
+                (address>=self.currentSelection['start'] and address<self.currentSelection['end'])
+            ):
+                painter.setBackground(QtGui.QBrush(QtGui.QColor(0xff, 0x00, 0x00, 0x80)))
+                painter.setBackgroundMode(Qt.OpaqueMode)
+            else:
+                painter.setBackgroundMode(Qt.TransparentMode)
+            
             painter.drawText(xpos, ypos, f'{address:0{self.numHexChars(len(self.data))}x}')
 
             ypos += self._charHeight
