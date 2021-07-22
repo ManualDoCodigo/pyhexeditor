@@ -81,10 +81,11 @@ class HexEditor_p(QtWidgets.QWidget):
     def mousePressEvent(self, e):
         '''The mouse click event starts a new selection and update the cursor variables'''
         self.update()
-        self.setCursorVariables(self.mapPointToHexIndex(e.pos()))
-        self.currentSelection['click'] = self._cursorIndexInData
-        self.currentSelection['start'] = self._cursorIndexInData
-        self.currentSelection['end'] = self._cursorIndexInData
+        if self.mapPointToDataIndex(e.pos())>=0:
+            self.setCursorVariables(self.mapPointToHexIndex(e.pos()))
+            self.currentSelection['click'] = self._cursorIndexInData
+            self.currentSelection['start'] = self._cursorIndexInData
+            self.currentSelection['end'] = self._cursorIndexInData
     
     def mouseMoveEvent(self, e):
         '''This method is called when we drag the mouse over the widget canvas.
@@ -92,15 +93,18 @@ class HexEditor_p(QtWidgets.QWidget):
         So we use the mouse location the calculate the start and end points of the selection.'''
 
         self.update()
-        self.setCursorVariables(self.mapPointToHexIndex(e.pos()))
-        cursorPos = self._cursorIndexInData
+        
 
-        if cursorPos >= self.currentSelection['click']:
-            self.currentSelection['start'] = self.currentSelection['click']
-            self.currentSelection['end'] = cursorPos
-        else:
-            self.currentSelection['start'] = cursorPos
-            self.currentSelection['end'] = self.currentSelection['click']
+        if self.mapPointToDataIndex(e.pos())>=0:
+            self.setCursorVariables(self.mapPointToHexIndex(e.pos()))
+            cursorPos = self._cursorIndexInData
+
+            if cursorPos >= self.currentSelection['click']:
+                self.currentSelection['start'] = self.currentSelection['click']
+                self.currentSelection['end'] = cursorPos
+            else:
+                self.currentSelection['start'] = cursorPos
+                self.currentSelection['end'] = self.currentSelection['click']
 
         
 
@@ -143,15 +147,15 @@ class HexEditor_p(QtWidgets.QWidget):
         self.currentSelection['end'] = pos
 
 
-    # def mapPointToDataIndex(self,point):
-    #     if point.x() > self.hex_xpos and point.x() < self.hex_xpos + self.hex_width - self._charWidth:
-    #         x = ((point.x() - self.hex_xpos) // self._charWidth) // 3
-    #         y = (point.y() // self._charHeight) * self.BYTES_PER_LINE
-        
-    #     else:
-    #         return -1
-        
-    #     return x+y
+    def mapPointToDataIndex(self,point):
+        if point.x() > self.hex_xpos and point.x() < self.hex_xpos + self.hex_width - self._charWidth:
+            x = ((point.x() - self.hex_xpos) // self._charWidth) // 3
+            y = (point.y() // self._charHeight) * self.BYTES_PER_LINE
+      
+        else:
+            return -1
+      
+        return x+y
 
     def keyPressEvent(self, e):
         key = e.text()
