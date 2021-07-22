@@ -315,7 +315,8 @@ class HexEditor_p(QtWidgets.QWidget):
             for i in range(lineNum,lineNum+16):
                 hex = self.data[i]
 
-                #print(type(hex))
+                if self.isInCursorLine(i,self._cursorIndexInData):
+                    painter.fillRect(QtCore.QRect(xpos, ypos-self._charHeight+4, self._charWidth*3, self._charHeight), QtGui.QColor(0x6d, 0x9e, 0xff, 0x20))
 
                 #Painting the current selection with a different color
                 if i>=self.currentSelection['start'] and i<=self.currentSelection['end'] and self.currentSelection['start'] != self.currentSelection['end']:
@@ -376,6 +377,11 @@ class HexEditor_p(QtWidgets.QWidget):
         if self._cursorBlink:
             painter.fillRect(self._cursorXPositionInCanvas, self._cursorYPositionInCanvas, self._charWidth, 2, self.palette().color(QtGui.QPalette.WindowText))
 
+    def isInCursorLine(self, pos, cursor):
+        lineStart = (cursor//self.BYTES_PER_LINE)*self.BYTES_PER_LINE
+        if pos>=lineStart and pos<=lineStart+self.BYTES_PER_LINE-1:
+            return True
+        return False
 
     def numHexChars(self, num):
         numHexs = 0
