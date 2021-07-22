@@ -78,20 +78,40 @@ class HexEditor_p(QtWidgets.QWidget):
         self._cursorBlink = not self._cursorBlink
         self.update(self._cursorXPositionInCanvas, self._cursorYPositionInCanvas, self._charWidth, self._charHeight)
 
+    def clickedInAddressArea(self, point):
+        if point.x() > self.addr_xpos and point.x() < self.addr_xpos + self.addr_width:
+            return True
+        return False
+
+    def clickedInHexArea(self, point):
+        if point.x() > self.hex_xpos and point.x() < self.hex_xpos + self.hex_width:
+            return True
+        return False
+    
+    def clickedInAsciiArea(self, point):
+        if point.x() > self.ascii_xpos and point.x() < self.ascii_xpos + self.ascii_width:
+            return True
+        return False
+    
     def mousePressEvent(self, e):
         '''The mouse click event starts a new selection and update the cursor variables'''
         self.update()
-        if self.mapPointToDataIndex(e.pos())>=0:
+        if self.clickedInHexArea(e.pos()):
             self.setCursorVariables(self.mapPointToHexIndex(e.pos()))
             self.currentSelection['click'] = self._cursorIndexInData
             self.currentSelection['start'] = self._cursorIndexInData
             self.currentSelection['end'] = self._cursorIndexInData
-        elif self.mapPointToLineStartPos(e.pos())>=0:
+        elif self.clickedInAddressArea(e.pos()):
             lineStartAddr = self.mapPointToLineStartPos(e.pos())
             self.setCursorVariables(lineStartAddr*2)
             self.currentSelection['click'] = lineStartAddr
             self.currentSelection['start'] = lineStartAddr
             self.currentSelection['end'] = lineStartAddr+self.BYTES_PER_LINE-1
+        elif self.clickedInAsciiArea(e.pos()):
+            self.setCursorVariables(self.mapPointToDataIndex(e.pos())*2)
+            self.currentSelection['click'] = self._cursorIndexInData
+            self.currentSelection['start'] = self._cursorIndexInData
+            self.currentSelection['end'] = self._cursorIndexInData
     
     def mouseMoveEvent(self, e):
         '''This method is called when we drag the mouse over the widget canvas.
@@ -167,15 +187,17 @@ class HexEditor_p(QtWidgets.QWidget):
         if point.x() > self.hex_xpos and point.x() < self.hex_xpos + self.hex_width - self._charWidth:
             x = ((point.x() - self.hex_xpos) // self._charWidth) // 3
             y = (point.y() // self._charHeight) * self.BYTES_PER_LINE
-      
-        else:
+        elif point.x() > self.ascii_xpos and point.x() < self.ascii_xpos + self.ascii_width - self._charWidth:
+            x = ((point.x() - self.ascii_xpos) // self._charWidth)-1
+            y = (point.y() // self._charHeight) * self.BYTES_PER_LINE
+        else: 
             return -1
       
         return x+y
 
     def mapPointToLineStartPos(self,point):
         if point.x() > self.addr_xpos and point.x() < self.hex_xpos:
-            x = ((point.x() - self.hex_xpos) // self._charWidth) // 3
+            x = ((point.x() - self.hex_xpos) // self._charWidth)
             y = (point.y() // self._charHeight) * self.BYTES_PER_LINE
         else:
             return -1
