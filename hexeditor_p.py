@@ -86,6 +86,12 @@ class HexEditor_p(QtWidgets.QWidget):
             self.currentSelection['click'] = self._cursorIndexInData
             self.currentSelection['start'] = self._cursorIndexInData
             self.currentSelection['end'] = self._cursorIndexInData
+        elif self.mapPointToLineStartPos(e.pos())>=0:
+            lineStartAddr = self.mapPointToLineStartPos(e.pos())
+            self.setCursorVariables(lineStartAddr*2)
+            self.currentSelection['click'] = lineStartAddr
+            self.currentSelection['start'] = lineStartAddr
+            self.currentSelection['end'] = lineStartAddr+self.BYTES_PER_LINE-1
     
     def mouseMoveEvent(self, e):
         '''This method is called when we drag the mouse over the widget canvas.
@@ -105,8 +111,17 @@ class HexEditor_p(QtWidgets.QWidget):
             else:
                 self.currentSelection['start'] = cursorPos
                 self.currentSelection['end'] = self.currentSelection['click']
+        elif self.mapPointToLineStartPos(e.pos())>=0:
+            lineAddrSelected = self.mapPointToLineStartPos(e.pos())
+            
+            if lineAddrSelected >= self.currentSelection['click']:
+                self.currentSelection['start'] = self.currentSelection['click']
+                self.currentSelection['end'] = lineAddrSelected+self.BYTES_PER_LINE-1
+            else:
+                self.currentSelection['start'] = lineAddrSelected
+                self.currentSelection['end'] = self.currentSelection['click']
 
-        
+            self.setCursorVariables(self.currentSelection['start']*2)
 
     def setCursorVariables(self, hexIndex):
         self._cursorIndexInData = hexIndex//2
@@ -156,6 +171,15 @@ class HexEditor_p(QtWidgets.QWidget):
             return -1
       
         return x+y
+
+    def mapPointToLineStartPos(self,point):
+        if point.x() > self.addr_xpos and point.x() < self.hex_xpos:
+            x = ((point.x() - self.hex_xpos) // self._charWidth) // 3
+            y = (point.y() // self._charHeight) * self.BYTES_PER_LINE
+        else:
+            return -1
+      
+        return y
 
     def keyPressEvent(self, e):
         key = e.text()
