@@ -304,11 +304,16 @@ class HexEditor_p(QtWidgets.QWidget):
             for i in range(lineNum,lineNum+16):
                 ch = self.data[i]
 
-                if ch <0x20 or (ch > 0x7e and ch < 0xa0):
+                if ch < 0x20 or (ch > 0x7e and ch < 0xa0) or ch == 0xad:
                     ch = '.'
                 else:
                     ch = chr(ch)
 
+                if self.currentSelection['start']<=i and self.currentSelection['end']>=i:
+                    painter.setBackground(QtGui.QBrush(QtGui.QColor(0xff, 0x00, 0xff, 0x80)))
+                    painter.setBackgroundMode(Qt.OpaqueMode)
+                else:
+                    painter.setBackgroundMode(Qt.TransparentMode)
 
                 painter.drawText(xpos, ypos,ch)
                 xpos += self._charWidth
