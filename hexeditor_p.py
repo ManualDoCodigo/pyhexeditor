@@ -218,6 +218,8 @@ class HexEditor_p(QtWidgets.QWidget):
                     self.setCursorVariables(self.currentSelection['start']*2)
                     self.data.replaceWithValue(self.currentSelection['start'], selectionSize, 0x0)
                     self.resetCurrentSelection(self.currentSelection['start'])
+                else:
+                    self.selections.add(self._cursorIndexInData, self._cursorIndexInData)
 
                 byte = self.data[self._cursorIndexInData]
                 #print(f"{byte:02x}")
