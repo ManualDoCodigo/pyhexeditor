@@ -287,8 +287,6 @@ class HexEditor_p(QtWidgets.QWidget):
         while lineNum<self.lastIndexToPaint:
             address = lineNum
 
-            #print(f"line: {lineNum}, cursor: {self._cursorIndexInData}")
-
             if (
                 (self.currentSelection['start']>=address and self.currentSelection['start']<address+self.BYTES_PER_LINE) or
                 (self.currentSelection['end']>=address and self.currentSelection['end']<address+self.BYTES_PER_LINE) or
@@ -310,6 +308,18 @@ class HexEditor_p(QtWidgets.QWidget):
         ypos = ((self.firstIndexToPaint) / self.BYTES_PER_LINE) * self._charHeight + self._charHeight
         lineNum = self.firstIndexToPaint
 
+        if self.currentSelection['start'] != self.currentSelection['end']:
+            polygons = self.generateSelectionPolygonPoints()
+            painter.setBrush(QtGui.QBrush(QtGui.QColor(0,0xff,0,0x80)))
+
+            for polygon in polygons:
+                polygonQt = QtGui.QPolygonF() 
+
+                for point in polygon:
+                    polygonQt.append(QtCore.QPointF(point[0], point[1]))
+                
+                painter.drawPolygon(polygonQt)
+
         while lineNum<self.lastIndexToPaint:
 
             xpos = self.hex_xpos
@@ -322,8 +332,9 @@ class HexEditor_p(QtWidgets.QWidget):
 
                 #Painting the current selection with a different color
                 if i>=self.currentSelection['start'] and i<=self.currentSelection['end'] and self.currentSelection['start'] != self.currentSelection['end']:
-                        painter.setBackground(QtGui.QBrush(QtGui.QColor(0x00, 0xff, 0x00, 0x30)))
-                        painter.setBackgroundMode(Qt.OpaqueMode)
+                    #painter.setBackground(QtGui.QBrush(QtGui.QColor(0x00, 0xff, 0x00, 0x30)))
+                    #painter.setBackgroundMode(Qt.OpaqueMode)
+                    painter.setBackgroundMode(Qt.TransparentMode)
                 elif self.selections.isSelected(i):
                     painter.setBackground(QtGui.QBrush(QtGui.QColor(0xff, 0x00, 0x00, 0x30)))
                     painter.setBackgroundMode(Qt.OpaqueMode)
@@ -336,14 +347,69 @@ class HexEditor_p(QtWidgets.QWidget):
                 if i == self._cursorIndexInData:
                     painter.setBackground(QtGui.QBrush(QtGui.QColor(0x6d, 0x9e, 0xff, 0xff)))
                     painter.setBackgroundMode(Qt.OpaqueMode)
-                    #print(f"i: {i} - hex: {hex}")
 
                 painter.drawText(xpos, ypos, f'{hex:02x}')
                 xpos += self._charWidth*2
-
             
             ypos += self._charHeight
             lineNum += self.BYTES_PER_LINE
+    
+    def generateSelectionPolygonPoints(self):
+        points = []
+        startLine = self.currentSelection['start']//self.BYTES_PER_LINE
+        endLine = self.currentSelection['end']//self.BYTES_PER_LINE
+        posStartLine = self.currentSelection['start']%self.BYTES_PER_LINE
+        posEndLine = self.currentSelection['end']%self.BYTES_PER_LINE
+
+        start = self.dataPosToCanvasPoint(self.currentSelection['start'])
+        end = self.dataPosToCanvasPoint(self.currentSelection['end'])
+
+        if startLine == endLine:
+            polygon = []
+            polygon.append([start[0],start[1]])
+            polygon.append([end[0]+self._charWidth*3,start[1]])
+            polygon.append([end[0]+self._charWidth*3,end[1]+self._charHeight])
+            polygon.append([start[0],end[1]+self._charHeight])
+            points.append(polygon)
+        elif endLine-startLine==1 and posStartLine>posEndLine:
+            polygon1 = []
+            polygon1.append([start[0],start[1]])
+            polygon1.append([self.ascii_xpos-self._charWidth//2,start[1]])
+            polygon1.append([self.ascii_xpos-self._charWidth//2,start[1]+self._charHeight])
+            polygon1.append([start[0],start[1]+self._charHeight])
+            points.append(polygon1)
+
+            polygon2 = []
+            polygon2.append([self.hex_xpos+self._charWidth//2,end[1]])
+            polygon2.append([end[0]+self._charWidth*3,end[1]])
+            polygon2.append([end[0]+self._charWidth*3,end[1]+self._charHeight])
+            polygon2.append([self.hex_xpos+self._charWidth//2,end[1]+self._charHeight])
+            points.append(polygon2)
+        else:
+            polygon = []
+            polygon.append([start[0],start[1]])
+            polygon.append([self.ascii_xpos-self._charWidth//2,start[1]])
+            polygon.append([self.ascii_xpos-self._charWidth//2,end[1]])
+            polygon.append([end[0]+self._charWidth*3,end[1]])
+            polygon.append([end[0]+self._charWidth*3,end[1]+self._charHeight])
+            polygon.append([self.hex_xpos+self._charWidth//2,end[1]+self._charHeight])
+            polygon.append([self.hex_xpos+self._charWidth//2,start[1]+self._charHeight])
+            polygon.append([start[0],start[1]+self._charHeight])
+            points.append(polygon)
+
+        return points
+
+    def dataPosToCanvasPoint(self, pos):
+        x=(pos%self.BYTES_PER_LINE)*self._charWidth*3+self.hex_xpos
+        y=(pos//self.BYTES_PER_LINE)*self._charHeight
+
+        return [x+self._charWidth//2,y+3]
+
+    def dataPosToCanvasEnvelop(self, pos):
+        x=self.hex_xpos
+        y=(pos//self.BYTES_PER_LINE)*self._charHeight
+
+        return [x+self._charWidth//2,y+3]
 
     def paintLatin1Area(self, painter, e):
         painter.setBackgroundMode(Qt.TransparentMode)
