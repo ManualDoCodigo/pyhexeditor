@@ -13,7 +13,7 @@ class HexEditor_p(QtWidgets.QWidget):
 
         self._scroll = parent
 
-        self.BYTES_PER_LINE = 16
+        self.BYTES_PER_LINE = 8
 
         self._cursorTimer = QtCore.QTimer()
 
@@ -32,10 +32,10 @@ class HexEditor_p(QtWidgets.QWidget):
         self.addr_width = self.numHexChars(len(self.data)) * self._charWidth + self._charWidth
 
         self.hex_xpos = self.addr_width
-        self.hex_width = 49*self._charWidth
+        self.hex_width = (self.BYTES_PER_LINE*3+1)*self._charWidth
 
         self.ascii_xpos = self.addr_width + self.hex_width
-        self.ascii_width = 18*self._charWidth
+        self.ascii_width = (self.BYTES_PER_LINE+2)*self._charWidth
 
         self.widget_width = self.ascii_xpos + self.ascii_width
 
@@ -75,6 +75,9 @@ class HexEditor_p(QtWidgets.QWidget):
             self.update()
         else:
             print("The Data should be a bytearray or bytes")
+
+    def setHexLineWidth(self, width):
+        self.BYTES_PER_LINE = width
 
     def updateCursor(self):
         self._cursorBlink = not self._cursorBlink
@@ -326,7 +329,7 @@ class HexEditor_p(QtWidgets.QWidget):
 
             xpos = self.hex_xpos
 
-            for i in range(lineNum,lineNum+16):
+            for i in range(lineNum,lineNum+self.BYTES_PER_LINE):
                 hex = self.data[i]
 
                 if self.isInCursorLine(i,self._cursorIndexInData):
@@ -423,7 +426,7 @@ class HexEditor_p(QtWidgets.QWidget):
         while lineNum<self.lastIndexToPaint:
             xpos = self.ascii_xpos + self._charWidth
 
-            for i in range(lineNum,lineNum+16):
+            for i in range(lineNum,lineNum+self.BYTES_PER_LINE):
                 ch = self.data[i]
 
                 if ch < 0x20 or (ch > 0x7e and ch < 0xa0) or ch == 0xad:
