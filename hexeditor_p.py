@@ -66,6 +66,8 @@ class HexEditor_p(QtWidgets.QWidget):
         self._cursorTimer.setInterval(500)
         self._cursorTimer.start()
 
+        parent.setFixedSize(self.ascii_xpos+self.ascii_width+self.style().pixelMetric(QtWidgets.QStyle.PM_ScrollBarExtent),400)
+        
     def setData(self, data):
         if isinstance(data, (bytearray, bytes, QtCore.QByteArray)):
             self.data.setData(data)
