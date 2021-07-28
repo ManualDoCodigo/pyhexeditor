@@ -13,14 +13,16 @@ class HexEditor_p(QtWidgets.QWidget):
 
         self._scroll = parent
 
-        self.BYTES_PER_LINE = 8
+        self.BYTES_PER_LINE = 15
+        self.NUMBER_OF_LINES = 15
+        self.FONT_SIZE = 12
 
         self._cursorTimer = QtCore.QTimer()
 
         self.data = HexData()
         self.data.setData(bytearray(os.urandom(1024*20)))
 
-        self.setFont(QtGui.QFont("Courier", 8))
+        self.setFont(QtGui.QFont("Courier", self.FONT_SIZE))
         self.setFocusPolicy(Qt.StrongFocus)
 
         self.penStandard = QtGui.QPen(self.palette().color(QtGui.QPalette.WindowText))
@@ -59,14 +61,14 @@ class HexEditor_p(QtWidgets.QWidget):
 
         self.selections = Selections()
 
-        self.setMinimumHeight((len(self.data)//16)*self._charHeight+self._charHeight)
+        self.setMinimumHeight((len(self.data)//self.BYTES_PER_LINE)*self._charHeight+self._charHeight+self._charHeight//2)
         self.setCursorVariables(0) #TODO
 
         self._cursorTimer.timeout.connect(self.updateCursor)
         self._cursorTimer.setInterval(500)
         self._cursorTimer.start()
 
-        parent.setFixedSize(self.ascii_xpos+self.ascii_width+self.style().pixelMetric(QtWidgets.QStyle.PM_ScrollBarExtent),400)
+        parent.setFixedSize(self.ascii_xpos+self.ascii_width+self.style().pixelMetric(QtWidgets.QStyle.PM_ScrollBarExtent),self._charHeight*self.NUMBER_OF_LINES+self._charHeight//2)
         
     def setData(self, data):
         if isinstance(data, (bytearray, bytes, QtCore.QByteArray)):
@@ -78,6 +80,14 @@ class HexEditor_p(QtWidgets.QWidget):
 
     def setHexLineWidth(self, width):
         self.BYTES_PER_LINE = width
+
+    def setFontSize(self, size):
+        if size<8:
+            self.FONT_SIZE = 8
+        elif size>72:
+            self.FONT_SIZE = 72
+        else:
+            self.FONT_SIZE = size
 
     def updateCursor(self):
         self._cursorBlink = not self._cursorBlink
@@ -151,17 +161,19 @@ class HexEditor_p(QtWidgets.QWidget):
 
     def setCursorVariables(self, hexIndex):
         self._cursorIndexInData = hexIndex//2
+
+        if self._cursorIndexInData >= len(self.data):
+            self._cursorIndexInData = len(self.data) - 1
+
         self._cursorHexPosition = hexIndex
+
+        if self._cursorHexPosition >= len(self.data)*2:
+            self._cursorHexPosition = len(self.data)*2 - 2
         
         self._cursorYPositionInCanvas = (self._cursorHexPosition // (2*self.BYTES_PER_LINE)) * self._charHeight +self._charHeight + 2
-        #print(f"charHeight: {self._charHeight}")
 
         x = self._cursorHexPosition % (2*self.BYTES_PER_LINE)
         self._cursorXPositionInCanvas = (((x//2)*3) + (x%2)) * self._charWidth + self.hex_xpos + self._charWidth
-
-        #print(f"_cursorIndexInData: {self._cursorIndexInData} - self._cursorHexPosition: {self._cursorHexPosition} - \
-        #self._cursorXPositionInCanvas: {self._cursorXPositionInCanvas} - self._cursorYPositionInCanvas: {self._cursorYPositionInCanvas}")
-
 
     def mapPointToHexIndex(self,point):
         if point.x() > self.hex_xpos and point.x() < self.hex_xpos + self.hex_width - self._charWidth:
@@ -197,8 +209,13 @@ class HexEditor_p(QtWidgets.QWidget):
             y = (point.y() // self._charHeight) * self.BYTES_PER_LINE
         else: 
             return -1
+
+        dataIndex = x+y
+
+        if dataIndex>= len(self.data):
+            dataIndex = len(self.data)-1
       
-        return x+y
+        return dataIndex
 
     def mapPointToLineStartPos(self,point):
         if point.x() > self.addr_xpos and point.x() < self.hex_xpos:
@@ -330,6 +347,9 @@ class HexEditor_p(QtWidgets.QWidget):
             xpos = self.hex_xpos
 
             for i in range(lineNum,lineNum+self.BYTES_PER_LINE):
+                if i>=len(self.data):
+                    break
+
                 hex = self.data[i]
 
                 if self.isInCursorLine(i,self._cursorIndexInData):
@@ -427,6 +447,9 @@ class HexEditor_p(QtWidgets.QWidget):
             xpos = self.ascii_xpos + self._charWidth
 
             for i in range(lineNum,lineNum+self.BYTES_PER_LINE):
+                if i>=len(self.data):
+                    break
+
                 ch = self.data[i]
 
                 if ch < 0x20 or (ch > 0x7e and ch < 0xa0) or ch == 0xad:
