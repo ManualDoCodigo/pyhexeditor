@@ -28,3 +28,6 @@ class HexEditor(QtWidgets.QScrollArea):
     
     def setFontSize(self, size):
         self.hex_p.setFontSize(size)
+    
+    def setCursorPosition(self, address):
+        self.hex_p.setCursorPosition(address)

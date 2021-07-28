@@ -16,6 +16,7 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi('mainwindow.ui', self)
 
         self.actionopen.triggered.connect(self.open)
+        self.lineEditAddress.textChanged.connect(self.serCursorPosition)
 
     def open(self):
         fileName, filter = QtWidgets.QFileDialog.getOpenFileName(self, 'OpenFile')
@@ -24,7 +25,13 @@ class MainWindow(QtWidgets.QMainWindow):
         data = f.readAll()
         
         self.hexwidget.setData(data)
-
+    
+    def serCursorPosition(self):
+        try:
+            address = int(self.lineEditAddress.text(), 16)
+            self.hexwidget.setCursorPosition(address)
+        except:
+            print("Invalid hexadecimal number")
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

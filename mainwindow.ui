@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1214</width>
-    <height>597</height>
+    <width>907</width>
+    <height>508</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
+      <y>130</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -30,34 +30,34 @@
    <widget class="QLineEdit" name="lineEditAddress">
     <property name="geometry">
      <rect>
-      <x>90</x>
+      <x>10</x>
       <y>50</y>
-      <width>141</width>
+      <width>91</width>
       <height>20</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>50</y>
-      <width>421</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
     </property>
    </widget>
    <widget class="HexEditor" name="hexwidget" native="true">
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>90</y>
+      <y>30</y>
       <width>751</width>
       <height>431</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>91</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Go to:</string>
     </property>
    </widget>
   </widget>
@@ -66,8 +66,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1214</width>
-     <height>22</height>
+     <width>907</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -13,7 +13,7 @@ class HexEditor_p(QtWidgets.QWidget):
 
         self._scroll = parent
 
-        self.BYTES_PER_LINE = 15
+        self.BYTES_PER_LINE = 16
         self.NUMBER_OF_LINES = 15
         self.FONT_SIZE = 12
 
@@ -69,7 +69,7 @@ class HexEditor_p(QtWidgets.QWidget):
         self._cursorTimer.start()
 
         parent.setFixedSize(self.ascii_xpos+self.ascii_width+self.style().pixelMetric(QtWidgets.QStyle.PM_ScrollBarExtent),self._charHeight*self.NUMBER_OF_LINES+self._charHeight//2)
-        
+
     def setData(self, data):
         if isinstance(data, (bytearray, bytes, QtCore.QByteArray)):
             self.data.setData(data)
@@ -110,6 +110,18 @@ class HexEditor_p(QtWidgets.QWidget):
         if point.x() > self.ascii_xpos and point.x() < self.ascii_xpos + self.ascii_width:
             return True
         return False
+    
+    def setCursorPosition(self, address):
+        self.setCursorVariables(address*2)
+        self.currentSelection['click'] = self._cursorIndexInData
+        self.currentSelection['start'] = self._cursorIndexInData
+        self.currentSelection['end'] = self._cursorIndexInData
+
+        self.update()
+        self.ensureCursorVisible()
+    
+    def ensureCursorVisible(self):
+        self._scroll.ensureVisible(self._cursorXPositionInCanvas, self._cursorYPositionInCanvas, 50, self.NUMBER_OF_LINES*self._charHeight//2)
     
     def mousePressEvent(self, e):
         '''The mouse click event starts a new selection and update the cursor variables'''
