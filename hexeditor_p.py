@@ -124,7 +124,11 @@ class HexEditor_p(QtWidgets.QWidget):
             self.setCursorVariables(lineStartAddr*2)
             self.currentSelection['click'] = lineStartAddr
             self.currentSelection['start'] = lineStartAddr
-            self.currentSelection['end'] = lineStartAddr+self.BYTES_PER_LINE-1
+
+            lineEndAddr = lineStartAddr+self.BYTES_PER_LINE-1
+            if lineEndAddr >= len(self.data):
+                lineEndAddr = len(self.data)-1
+            self.currentSelection['end'] = lineEndAddr
         elif self.clickedInAsciiArea(e.pos()):
             self.setCursorVariables(self.mapPointToDataIndex(e.pos())*2)
             self.currentSelection['click'] = self._cursorIndexInData
@@ -155,7 +159,11 @@ class HexEditor_p(QtWidgets.QWidget):
             
             if lineAddrSelected >= self.currentSelection['click']:
                 self.currentSelection['start'] = self.currentSelection['click']
-                self.currentSelection['end'] = lineAddrSelected+self.BYTES_PER_LINE-1
+
+                lineEndAddr = lineAddrSelected+self.BYTES_PER_LINE-1
+                if lineEndAddr >= len(self.data):
+                    lineEndAddr = len(self.data)-1
+                self.currentSelection['end'] = lineEndAddr
             else:
                 self.currentSelection['start'] = lineAddrSelected
                 self.currentSelection['end'] = self.currentSelection['click']
