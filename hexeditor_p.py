@@ -78,8 +78,11 @@ class HexEditor_p(QtWidgets.QWidget):
         else:
             print("The Data should be a bytearray or bytes")
 
-    def setHexLineWidth(self, width):
-        self.BYTES_PER_LINE = width
+    def setNumberOfBytesPerLine(self, num):
+        self.BYTES_PER_LINE = num
+    
+    def setNumberOfLines(self, num):
+        self.NUMBER_OF_LINES = num
 
     def setFontSize(self, size):
         if size<8:
