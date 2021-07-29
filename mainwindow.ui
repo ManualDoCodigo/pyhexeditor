@@ -75,6 +75,8 @@
      <string>File</string>
     </property>
     <addaction name="actionopen"/>
+    <addaction name="actionsave"/>
+    <addaction name="actionsave_as"/>
     <addaction name="separator"/>
     <addaction name="actionexit"/>
    </widget>
@@ -89,6 +91,16 @@
   <action name="actionexit">
    <property name="text">
     <string>exit</string>
+   </property>
+  </action>
+  <action name="actionsave">
+   <property name="text">
+    <string>save</string>
+   </property>
+  </action>
+  <action name="actionsave_as">
+   <property name="text">
+    <string>save as...</string>
    </property>
   </action>
  </widget>

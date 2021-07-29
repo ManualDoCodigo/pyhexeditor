@@ -30,3 +30,6 @@ class HexData:
             self.data = data
         else:
             raise ValueError('Invalid Data Format. Needs to be a bytearray, bytes or QByteArray.')
+    
+    def getData(self):
+        return self.data.data()

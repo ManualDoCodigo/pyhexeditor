@@ -20,6 +20,9 @@ class HexEditor(QtWidgets.QScrollArea):
     def setData(self, data):
         self.hex_p.setData(data)
 
+    def getData(self):
+        return self.hex_p.getData()
+
     def setNumberOfBytesPerLine(self, num):
         self.hex_p.setNumberOfBytesPerLine(num)
     

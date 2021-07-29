@@ -77,6 +77,9 @@ class HexEditor_p(QtWidgets.QWidget):
             self.update()
         else:
             print("The Data should be a bytearray or bytes")
+    
+    def getData(self):
+        return self.data.getData()
 
     def setNumberOfBytesPerLine(self, num):
         self.BYTES_PER_LINE = num
