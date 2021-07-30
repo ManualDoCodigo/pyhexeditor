@@ -61,8 +61,8 @@ class HexEditor_p(QtWidgets.QWidget):
 
         self.selections = Selections()
 
-        self.setMinimumHeight((len(self.data)//self.BYTES_PER_LINE)*self._charHeight+self._charHeight+self._charHeight//2)
-        self.setCursorVariables(0) #TODO
+        self.adjustEditorToData()
+        self.setCursorPosition(0)
 
         self._cursorTimer.timeout.connect(self.updateCursor)
         self._cursorTimer.setInterval(500)
@@ -73,7 +73,8 @@ class HexEditor_p(QtWidgets.QWidget):
     def setData(self, data):
         if isinstance(data, (bytearray, bytes, QtCore.QByteArray)):
             self.data.setData(data)
-            self.setCursorVariables(0)
+            self.adjustEditorToData()
+            self.setCursorPosition(0)
             self.update()
         else:
             print("The Data should be a bytearray or bytes")
@@ -94,6 +95,9 @@ class HexEditor_p(QtWidgets.QWidget):
             self.FONT_SIZE = 72
         else:
             self.FONT_SIZE = size
+
+    def adjustEditorToData(self):
+        self.setMinimumHeight((((len(self.data)-1)//self.BYTES_PER_LINE) * self._charHeight) + self._charHeight + self._charHeight//2)
 
     def updateCursor(self):
         self._cursorBlink = not self._cursorBlink
