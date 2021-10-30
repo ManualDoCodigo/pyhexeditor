@@ -1,8 +1,6 @@
 # 2021 - Douglas Diniz - www.manualdocodigo.com.br
 
-import os
-
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from hexeditor_p import HexEditor_p
