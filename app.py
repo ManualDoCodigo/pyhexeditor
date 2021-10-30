@@ -3,6 +3,7 @@
 import sys
 
 from PyQt5 import QtCore, QtWidgets, uic
+from PyQt5.QtCore import QFile, QTextStream
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -58,6 +59,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
+
+    # Theme test from:
+    # https://github.com/Alexhuszagh/BreezeStyleSheets
+    if False:
+        file = QFile("./dark.qss")
+        file.open(QFile.ReadOnly | QFile.Text)
+        stream = QTextStream(file)
+        app.setStyleSheet(stream.readAll())
+
     main = MainWindow()
 
     main.show()
