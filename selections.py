@@ -12,10 +12,11 @@ class Selections:
                 return True
         return False
 
+
 class Selection:
     def __init__(self, start, end) -> None:
         self.start = start
         self.end = end
-    
+
     def contains(self, address):
-        return address>=self.start and address<=self.end
+        return address >= self.start and address <= self.end

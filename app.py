@@ -1,21 +1,18 @@
-#2021 - Douglas Diniz - www.manualdocodigo.com.br
+# 2021 - Douglas Diniz - www.manualdocodigo.com.br
 
-from PyQt5 import QtCore, QtWidgets, uic, QtGui
-from PyQt5.QtCore import Qt
-from hexeditor import HexEditor
-import hexeditor as he
 import sys
-import os
+
+from PyQt5 import QtCore, QtWidgets, uic
+
 
 class MainWindow(QtWidgets.QMainWindow):
-
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
         self.filename = ""
 
-        #Load the UI Page
-        uic.loadUi('mainwindow.ui', self)
+        # Load the UI Page
+        uic.loadUi("mainwindow.ui", self)
 
         self.actionopen.triggered.connect(self.open)
         self.actionsave.triggered.connect(self.save)
@@ -23,18 +20,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEditAddress.textChanged.connect(self.serCursorPosition)
 
     def open(self):
-        fName, filter = QtWidgets.QFileDialog.getOpenFileName(self, 'OpenFile')
+        fName, filter = QtWidgets.QFileDialog.getOpenFileName(self, "OpenFile")
         f = QtCore.QFile(fName)
         f.open(QtCore.QFile.ReadOnly)
         data = f.readAll()
-        
+
         self.hexwidget.setData(data)
         self.filename = fName
-    
-    def save(self):        
+
+    def save(self):
         if self.filename:
             data = self.hexwidget.getData()
-            f = open(self.filename, 'wb')
+            f = open(self.filename, "wb")
             f.write(data)
             f.close()
 
@@ -43,20 +40,21 @@ class MainWindow(QtWidgets.QMainWindow):
             print("No file to save")
 
     def saveAs(self):
-        fName, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File')
+        fName, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save File")
 
         if fName:
             self.filename = fName
             self.save()
         else:
             print("Invalid File")
-    
+
     def serCursorPosition(self):
         try:
             address = int(self.lineEditAddress.text(), 16)
             self.hexwidget.setCursorPosition(address)
         except:
             print("Invalid hexadecimal number")
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
@@ -65,5 +63,6 @@ def main():
     main.show()
     sys.exit(app.exec_())
 
-if __name__ == '__main__':         
+
+if __name__ == "__main__":
     main()
