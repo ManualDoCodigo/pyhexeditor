@@ -3,15 +3,14 @@
 import os
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt
 
 from hexdata import HexData
 from selections import Selections
 
 
-# sdjkfhskdjfhs
 class HexEditor_p(QtWidgets.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         super(HexEditor_p, self).__init__(parent)
 
         self._scroll = parent
